@@ -1,0 +1,49 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               Int       @id @default(autoincrement())
+  email            String    @unique
+  name             String
+  address          String
+  carPlateNumber   String    @unique
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  Parkings         Parking[]
+}
+
+model City {
+  id             Int       @id @default(autoincrement())
+  name           String    @unique
+  ParkingAreas   ParkingArea[]
+  Parkings       Parking[]
+}
+
+model ParkingArea {
+  id             Int       @id @default(autoincrement())
+  city           City      @relation(fields: [cityId], references: [id])
+  cityId         Int
+  name           String
+  Parkings       Parking[]
+
+  @@unique([name, cityId])
+}
+
+model Parking {
+  id             Int       @id @default(autoincrement())
+  user           User      @relation(fields: [userId], references: [id])
+  userId         Int
+  city           City      @relation(fields: [cityId], references: [id])
+  cityId         Int
+  parkingArea    ParkingArea @relation(fields: [parkingAreaId], references: [id])
+  parkingAreaId  Int
+  startTime      DateTime
+  endTime        DateTime?
+  price          Float
+}
